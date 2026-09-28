@@ -1,0 +1,224 @@
+{
+    "Paper Linear SVM (FD + TC)": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD Slope + TC Mean (Paper)",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    },
+    "Extended Paper SVM": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD (44 scales) + TC Stats (8)",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    },
+    "Baseline Random Forest": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD + TC Statistical Descriptors",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    },
+    "Baseline RBF SVM": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD + TC Statistical Descriptors",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    },
+    "Baseline Logistic Regression": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD + TC Statistical Descriptors",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    },
+    "Novel Hybrid Ensemble": {
+        "summary": {
+            "balanced_accuracy": 1.0,
+            "balanced_accuracy_std": 0.0,
+            "accuracy": 1.0,
+            "accuracy_std": 0.0,
+            "roc_auc": 1.0,
+            "roc_auc_std": 0.0,
+            "pr_auc": 1.0,
+            "pr_auc_std": 0.0,
+            "precision_real": 1.0,
+            "precision_real_std": 0.0,
+            "recall_real": 1.0,
+            "recall_real_std": 0.0,
+            "f1_real": 1.0,
+            "f1_real_std": 0.0,
+            "precision_fake": 1.0,
+            "precision_fake_std": 0.0,
+            "recall_fake": 1.0,
+            "recall_fake_std": 0.0,
+            "f1_fake": 1.0,
+            "f1_fake_std": 0.0,
+            "macro_f1": 1.0,
+            "macro_f1_std": 0.0
+        },
+        "feature_name": "FD + TC + Spectral + Texture Moments",
+        "cm": [
+            [
+                12.0,
+                0.0
+            ],
+            [
+                0.0,
+                12.0
+            ]
+        ]
+    }
+}
