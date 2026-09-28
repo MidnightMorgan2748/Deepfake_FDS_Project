@@ -144,12 +144,11 @@ The notebook features interactive previews, residual heatmaps, feature histogram
 
 | Pipeline / Model | Feature Set | Balanced Acc (%) | ROC-AUC | Real Recall | Fake Recall | Macro F1 |
 |:---|:---|:---:|:---:|:---:|:---:|:---:|
-| **Paper Linear SVM (FD + TC)** | FD Slope + TC Mean (Paper) | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
-| **Extended Paper SVM** | FD (44 scales) + TC Stats (8) | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
-| **Baseline Random Forest** | FD + TC Statistical Descriptors | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
-| **Baseline RBF SVM** | FD + TC Statistical Descriptors | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
-| **Baseline Logistic Regression** | FD + TC Statistical Descriptors | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
-| **Novel Hybrid Ensemble** | FD + TC + Spectral + Texture Moments | **100.00 ± 0.00** | **1.0000** | **100.00%** | **100.00%** | **1.0000** |
+| **Paper Linear SVM (FD + TC)** | FD Slope + TC Mean (Paper) | 50.00 ± 0.00 | 0.4716 ± 0.0371 | 0.00% | 100.00% | 0.3420 |
+| **Baseline Random Forest** | FD + TC Statistical Descriptors | 62.52 ± 0.41 | 0.6824 ± 0.0200 | 53.71% | 71.34% | 0.6234 |
+| **Baseline RBF SVM** | FD + TC Statistical Descriptors | 55.49 ± 1.55 | 0.6008 ± 0.0151 | 31.24% | 79.75% | 0.5298 |
+| **Baseline Logistic Regression** | FD + TC Statistical Descriptors | 57.93 ± 1.28 | 0.6218 ± 0.0242 | 34.04% | 81.83% | 0.5579 |
+| **Novel Hybrid Ensemble** | FD + TC + Spectral + Texture Moments | **69.72 ± 2.57** | **0.7714 ± 0.0282** | **64.16%** | **75.29%** | **0.6968** |
 
 ---
 
