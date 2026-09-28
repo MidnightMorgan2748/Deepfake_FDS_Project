@@ -253,16 +253,22 @@ def main():
         return
         
     if args.step in ["preprocess", "all"]:
-        # If no raw images exist yet, seed benchmark samples for verification
         status = check_dataset_status(data_dir)
         if status["raw_total"] == 0:
-            print("[i] No raw images found. Generating benchmark verification samples...")
-            from src.dataset import generate_benchmark_synthetic_samples
-            generate_benchmark_synthetic_samples(
-                os.path.join(data_dir, "raw", "real"),
-                os.path.join(data_dir, "raw", "fake"),
-                count=60
-            )
+            print("[i] No raw images found in data/raw.")
+            manifest_file = os.path.join(data_dir, "manifest.json")
+            if os.path.exists(manifest_file):
+                print("[*] Automatically downloading real dataset from Google Drive manifest (1000 real + 1000 fake)...")
+                from download_dataset import download_manifest_dataset
+                download_manifest_dataset(manifest_file, base_dir=PROJECT_ROOT, max_per_class=1000, num_workers=16)
+            else:
+                print("[i] Manifest not found. Generating benchmark verification samples...")
+                from src.dataset import generate_benchmark_synthetic_samples
+                generate_benchmark_synthetic_samples(
+                    os.path.join(data_dir, "raw", "real"),
+                    os.path.join(data_dir, "raw", "fake"),
+                    count=60
+                )
         step_preprocess(data_dir)
         
     if args.step in ["extract", "all"]:

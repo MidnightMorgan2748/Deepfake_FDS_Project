@@ -1,124 +1,124 @@
 """
-Dataset downloader and organizer utility for Deepfake Image Detection.
-Supports:
-1. Direct automated download via gdown from Google Drive links.
-2. Unzipping manually downloaded archives from Google Drive into raw/real and raw/fake.
-3. Generating benchmark verification samples for offline testing.
+High-speed multithreaded dataset downloader and organizer utility for Deepfake Detection.
+Downloads the real dataset of 1,000+ Real and 1,000+ Fake images directly from Google Drive
+using concurrent threads and pre-extracted file IDs, completely bypassing Google Drive's 50-file folder limit.
 """
 
 import os
 import sys
-import shutil
-import zipfile
+import json
+import urllib.request
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 
-DRIVE_LINKS = {
-    "fake": "https://drive.google.com/drive/folders/13OqZH_uwD9IWhoWF5h0l-dTKFyRfII7A",
-    "real": "https://drive.google.com/drive/folders/1bQahWnXPid84b7MjE-9_mPyHHhzfQXH3"
-}
+MANIFEST_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "manifest.json")
 
-def download_via_gdown(base_dir):
-    """Downloads files directly from Google Drive using gdown."""
-    try:
-        import gdown
-    except ImportError:
-        print("[!] gdown is not installed. Please run: pip install gdown")
-        return False
+def download_single_file(item, output_dir, timeout=15, retries=3):
+    """Downloads an individual image file using Google Drive direct export URL."""
+    file_id = item["id"]
+    filename = item.get("name", f"{file_id}.jpg")
+    # Clean filename
+    safe_name = os.path.basename(filename)
+    if not safe_name.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+        safe_name = f"{safe_name}.jpg"
         
-    real_raw = os.path.join(base_dir, "data", "raw", "real")
-    fake_raw = os.path.join(base_dir, "data", "raw", "fake")
-    os.makedirs(real_raw, exist_ok=True)
-    os.makedirs(fake_raw, exist_ok=True)
+    out_path = os.path.join(output_dir, safe_name)
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 1000:
+        return safe_name, True
+        
+    url = f"https://drive.google.com/uc?export=download&id={file_id}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     
-    print("\n" + "="*70)
-    print("DOWNLOADING GOOGLE DRIVE DATASETS VIA GDOWN")
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if resp.status == 200:
+                    data = resp.read()
+                    if len(data) > 1000:  # Valid image payload
+                        with open(out_path, "wb") as f:
+                            f.write(data)
+                        return safe_name, True
+        except Exception:
+            continue
+            
+    # Fallback to Google CDN thumbnail if export endpoint rate-limits
+    cdn_url = f"https://lh3.googleusercontent.com/d/{file_id}=s512"
+    try:
+        cdn_req = urllib.request.Request(cdn_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(cdn_req, timeout=timeout) as resp:
+            if resp.status == 200:
+                data = resp.read()
+                if len(data) > 1000:
+                    with open(out_path, "wb") as f:
+                        f.write(data)
+                    return safe_name, True
+    except Exception:
+        pass
+        
+    return safe_name, False
+
+def download_manifest_dataset(manifest_file, base_dir=".", max_per_class=1000, num_workers=8):
+    """
+    Downloads Real and Fake images concurrently from manifest.json.
+    """
+    if not os.path.exists(manifest_file):
+        raise FileNotFoundError(f"Manifest file not found at {manifest_file}. Please run create_manifest.py first.")
+        
+    with open(manifest_file, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+        
+    real_items = manifest.get("real", [])
+    fake_items = manifest.get("fake", [])
+    
+    if max_per_class:
+        real_items = real_items[:max_per_class]
+        fake_items = fake_items[:max_per_class]
+        
+    real_out = os.path.join(base_dir, "data", "raw", "real")
+    fake_out = os.path.join(base_dir, "data", "raw", "fake")
+    os.makedirs(real_out, exist_ok=True)
+    os.makedirs(fake_out, exist_ok=True)
+    
     print("="*70)
-    print(f"[*] Downloading Fake Images to: {fake_raw}")
-    print(f"[*] Link: {DRIVE_LINKS['fake']}")
-    try:
-        gdown.download_folder(DRIVE_LINKS['fake'], output=fake_raw, quiet=False, use_cookies=False)
-    except Exception as e:
-        print(f"[!] Warning during fake images download: {e}")
-        
-    print(f"\n[*] Downloading Real Images to: {real_raw}")
-    print(f"[*] Link: {DRIVE_LINKS['real']}")
-    try:
-        gdown.download_folder(DRIVE_LINKS['real'], output=real_raw, quiet=False, use_cookies=False)
-    except Exception as e:
-        print(f"[!] Warning during real images download: {e}")
-        
-    return True
-
-def extract_zips_to_raw(real_zip_path=None, fake_zip_path=None, base_dir="."):
-    """Extracts downloaded zip files directly into raw/real and raw/fake."""
-    real_raw = os.path.join(base_dir, "data", "raw", "real")
-    fake_raw = os.path.join(base_dir, "data", "raw", "fake")
-    os.makedirs(real_raw, exist_ok=True)
-    os.makedirs(fake_raw, exist_ok=True)
+    print(f"DOWNLOADING COMPLETE DATASET ({len(real_items)} Real, {len(fake_items)} Fake)")
+    print(f"Bypassing Google Drive 50-file limit via {num_workers} parallel workers...")
+    print("="*70)
     
-    if real_zip_path and os.path.exists(real_zip_path):
-        print(f"[*] Extracting real images from {real_zip_path}...")
-        with zipfile.ZipFile(real_zip_path, 'r') as zip_ref:
-            zip_ref.extractall(real_raw)
-        print(f"[OK] Extracted into {real_raw}")
-        
-    if fake_zip_path and os.path.exists(fake_zip_path):
-        print(f"[*] Extracting fake images from {fake_zip_path}...")
-        with zipfile.ZipFile(fake_zip_path, 'r') as zip_ref:
-            zip_ref.extractall(fake_raw)
-        print(f"[OK] Extracted into {fake_raw}")
-
-def copy_sample_images(info_img_dir, base_dir="."):
-    """Copies sample images from informational directory for sanity verification."""
-    real_raw = os.path.join(base_dir, "data", "raw", "real")
-    fake_raw = os.path.join(base_dir, "data", "raw", "fake")
-    os.makedirs(real_raw, exist_ok=True)
-    os.makedirs(fake_raw, exist_ok=True)
-    
-    if os.path.exists(info_img_dir):
-        files = [os.path.join(info_img_dir, f) for f in os.listdir(info_img_dir) if f.lower().endswith(('.png', '.jpg'))]
-        for idx, f in enumerate(files):
-            dst = os.path.join(fake_raw if idx % 2 == 1 else real_raw, os.path.basename(f))
-            shutil.copy2(f, dst)
-        print(f"[OK] Copied {len(files)} sample images from {info_img_dir}")
+    # 1. Download Real images
+    print(f"\n[*] Downloading {len(real_items)} Real Images to: {real_out}")
+    real_success = 0
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        futures = {executor.submit(download_single_file, item, real_out): item for item in real_items}
+        for future in tqdm(as_completed(futures), total=len(real_items), desc="Downloading Real"):
+            _, success = future.result()
+            if success:
+                real_success += 1
+                
+    # 2. Download Fake images
+    print(f"\n[*] Downloading {len(fake_items)} Fake Images to: {fake_out}")
+    fake_success = 0
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        futures = {executor.submit(download_single_file, item, fake_out): item for item in fake_items}
+        for future in tqdm(as_completed(futures), total=len(fake_items), desc="Downloading Fake"):
+            _, success = future.result()
+            if success:
+                fake_success += 1
+                
+    print("\n" + "="*70)
+    print(f"[OK] Download Summary: {real_success}/{len(real_items)} Real, {fake_success}/{len(fake_items)} Fake downloaded successfully!")
+    print("="*70)
+    return real_success, fake_success
 
 def main():
-    parser = argparse.ArgumentParser(description="Dataset management tool for Deepfake Detection")
-    parser.add_argument("--gdown", action="store_true", help="Download datasets using gdown")
-    parser.add_argument("--real-zip", type=str, help="Path to downloaded Real Images zip archive")
-    parser.add_argument("--fake-zip", type=str, help="Path to downloaded Fake Images zip archive")
-    parser.add_argument("--benchmark-samples", type=int, default=0, help="Generate synthetic forensic benchmark samples")
+    parser = argparse.ArgumentParser(description="Multithreaded Dataset Downloader for DeepFake Detection")
+    parser.add_argument("--count", type=int, default=1000, help="Number of images to download per class (default: 1000)")
+    parser.add_argument("--workers", type=int, default=8, help="Number of parallel worker threads (default: 8)")
+    parser.add_argument("--manifest", type=str, default=MANIFEST_PATH, help="Path to manifest.json")
     args = parser.parse_args()
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    if args.real_zip or args.fake_zip:
-        extract_zips_to_raw(args.real_zip, args.fake_zip, base_dir=script_dir)
-    elif args.gdown:
-        download_via_gdown(script_dir)
-    elif args.benchmark_samples > 0:
-        from src.dataset import generate_benchmark_synthetic_samples
-        real_raw = os.path.join(script_dir, "data", "raw", "real")
-        fake_raw = os.path.join(script_dir, "data", "raw", "fake")
-        count = generate_benchmark_synthetic_samples(real_raw, fake_raw, count=args.benchmark_samples)
-        print(f"[OK] Generated {count} benchmark samples each in {real_raw} and {fake_raw}")
-    else:
-        print("\n" + "="*70)
-        print("DEEPFAKE DATASET DOWNLOAD INSTRUCTIONS")
-        print("="*70)
-        print("To download the collective dataset of >= 2,000 images:")
-        print(f"1. Real Images Folder (1,096 images):")
-        print(f"   {DRIVE_LINKS['real']}")
-        print(f"2. Fake Images Folder (996 images):")
-        print(f"   {DRIVE_LINKS['fake']}")
-        print("\nRecommended method:")
-        print("1. Open both links in your browser, click 'Download all' (Google Drive zips them).")
-        print("2. Run: python download_dataset.py --real-zip <path_to_real.zip> --fake-zip <path_to_fake.zip>")
-        print("\nOr automated download:")
-        print("   python download_dataset.py --gdown")
-        print("\nOr generate instant offline benchmark samples:")
-        print("   python download_dataset.py --benchmark-samples 60")
-        print("="*70)
+    download_manifest_dataset(args.manifest, base_dir=script_dir, max_per_class=args.count, num_workers=args.workers)
 
 if __name__ == "__main__":
     main()
